@@ -10,6 +10,7 @@ import {
   IconMicrophone,
   IconPlayerStopFilled,
   IconMicrophone2,
+  IconDownload,
 } from '@tabler/icons-react';
 import {
   KeyboardEvent,
@@ -381,6 +382,29 @@ export const ChatInput = ({
     };
   }, []);
 
+  const handleDownload = async () => {
+    try {
+      const response = await fetch('/api/file', {
+        method: 'GET',
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'downloadedFile'; // You can set the file name here
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('There was a problem with the download operation:', error);
+      toast.error(t('Download failed. Please try again.'));
+    }
+  };
+
   return (
     <div
       className={`absolute bottom-0 left-0 w-full border-transparent bg-gradient-to-b from-transparent via-white to-white pt-6 dark:border-white/20 dark:via-[#343541] dark:to-[#343541] ${
@@ -502,6 +526,16 @@ export const ChatInput = ({
               <div className="h-4 w-4 animate-spin rounded-full border-t-2 border-neutral-800 opacity-60 dark:border-neutral-100"></div>
             ) : (
               <IconSend size={18} />
+            )}
+          </button>
+          <button
+            className="absolute right-10 top-2 rounded-sm p-1 text-neutral-800 opacity-60 hover:bg-neutral-200 hover:text-neutral-900 dark:bg-opacity-50 dark:text-neutral-100 dark:hover:text-neutral-200"
+            onClick={handleDownload}
+          >
+            {messageIsStreaming ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-t-2 border-neutral-800 opacity-60 dark:border-neutral-100"></div>
+            ) : (
+              <IconDownload size={18} />
             )}
           </button>
 
